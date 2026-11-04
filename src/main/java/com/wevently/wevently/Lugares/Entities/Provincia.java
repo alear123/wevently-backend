@@ -1,0 +1,40 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.wevently.wevently.Lugares.Entities;
+
+import com.wevently.wevently.Base.BaseEntity;
+
+import jakarta.persistence.*;
+import java.util.List;
+
+import java.time.LocalDateTime;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.envers.Audited;
+
+@Audited
+@Entity
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "provincias")
+public class Provincia extends BaseEntity {
+    @NotBlank
+    @Column(unique = true)
+    private String nombre;
+    @NotNull
+    private LocalDateTime fechaHoraAlta;
+    private LocalDateTime fechaHoraBaja;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "provincia_id", nullable = true)
+    private List<Localidad> localidades;
+}
