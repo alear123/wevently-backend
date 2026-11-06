@@ -79,6 +79,16 @@ public class BackupsService extends BaseService<BackupConfiguracion, Long, Backu
     @Value("${BACKUP_DIRECTORY}")
     private String backupDirectory;
 
+    // Carpeta donde están mysqldump y mysql (configurable con MYSQL_BIN_DIR)
+    @Value("${MYSQL_BIN_DIR:C:\\Program Files\\MySQL\\MySQL Server 9.2\\bin}")
+    private String mysqlBinDir;
+
+    // Devuelve la ruta completa al ejecutable (agrega .exe en Windows)
+    private String mysqlBinario(String nombre) {
+        boolean esWindows = System.getProperty("os.name").toLowerCase().contains("win");
+        return mysqlBinDir + File.separator + nombre + (esWindows ? ".exe" : "");
+    }
+
     @Autowired
     private NotificacionService notificacionService;
 
@@ -334,7 +344,7 @@ public class BackupsService extends BaseService<BackupConfiguracion, Long, Backu
 
         // Ejecución del mysqldump (igual que antes)
         ProcessBuilder pb = new ProcessBuilder(
-                "C:\\Program Files\\MySQL\\MySQL Server 9.2\\bin\\mysqldump.exe",
+                mysqlBinario("mysqldump"),
                 "-u", mysqlUser,
                 "-p" + mysqlPassword,
                 "--single-transaction",
@@ -569,7 +579,7 @@ public class BackupsService extends BaseService<BackupConfiguracion, Long, Backu
         System.out.println("Tamaño del archivo: " + String.format("%.2f MB", sqlFile.length() / 1024.0 / 1024.0));
 
         try {
-            String mysqlPath = "C:\\Program Files\\MySQL\\MySQL Server 9.2\\bin\\mysql.exe";
+            String mysqlPath = mysqlBinario("mysql");
 
             // PASO 0: Cerrar el pool de conexiones de Hibernate
             System.out.println("Cerrando conexiones de Hibernate");

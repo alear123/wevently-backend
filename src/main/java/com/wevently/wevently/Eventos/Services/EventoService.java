@@ -320,7 +320,7 @@ public class EventoService extends BaseService<Evento, Long, EventoRepository> {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 0 2 * *") // Todos los días a las 2:00 AM
+    @Scheduled(cron = "0 0 2 * * *") // Todos los días a las 2:00 AM
     public void actualizarEventosRealizados() {
         LocalDate hoy = LocalDate.now();
 
