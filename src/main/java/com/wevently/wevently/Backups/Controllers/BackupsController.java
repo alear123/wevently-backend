@@ -9,6 +9,7 @@ import com.wevently.wevently.Backups.Services.BackupsService;
 import com.wevently.wevently.Backups.Entities.BackupConfiguracion;
 import com.wevently.wevently.Base.BaseController;
 import com.wevently.wevently.UsuariosySeguridad.Entities.Usuario;
+import com.wevently.wevently.UsuariosySeguridad.Services.Jwt.TienePermisos;
 import com.wevently.wevently.UsuariosySeguridad.Services.Jwt.UsuarioDetailsService;
 
 import java.util.List;
@@ -44,13 +45,14 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
 
     @GetMapping("/mis-backups")
     // @PreAuthorize("isAuthenticated()")
-    // @TienePermisos
+    @TienePermisos
     public ResponseEntity<List<DtoBackup>> getBackups() throws Exception {
         List<DtoBackup> backups = service.listarBackups();
         return ResponseEntity.ok(backups);
     }
 
     @PutMapping("/update/{id}")
+    @TienePermisos
     public ResponseEntity<BackupConfiguracionResponseDTO> updateBackup(@PathVariable Long id, @RequestBody DtoModificacionBackup dto) {
         BackupConfiguracionResponseDTO  backup = service.modificarConfiguracion(id, dto);
         return ResponseEntity.ok(backup);
@@ -58,7 +60,7 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
 
     @PostMapping("/create")
     //@PreAuthorize("isAuthenticated()")
-    // @TienePermisos
+    @TienePermisos
     public ResponseEntity<BackupConfiguracion> create(@RequestBody DtoNuevoBackup entity) throws Exception {
         Usuario usuario = usuarioDetailsService.getCurrentUser();
         BackupConfiguracion createdBackup = service.createBackup(entity, usuario.getEmail());
@@ -66,7 +68,7 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
     }
 
     // @PreAuthorize("isAuthenticated()")
-    // @TienePermisos
+    @TienePermisos
     @PostMapping("/realizar-backups")
     public ResponseEntity<String> realizarBackupsManualmente() {
         service.ejecutarBackupsPendientes();
@@ -74,6 +76,7 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
     }
 
     @PutMapping("/baja-logica-backup/{idBackup}")
+    @TienePermisos
     public ResponseEntity<?> bajaLogicaBackup(@PathVariable Long idBackup) {
         try {
             Usuario usuario = usuarioDetailsService.getCurrentUser();
@@ -98,6 +101,7 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
 
     @PostMapping("/limpiar-retencion")
     //@PreAuthorize("isAuthenticated()")
+    @TienePermisos
     public ResponseEntity<?> limpiarBackupsPorRetencion() {
         try {
             service.limpiarBackupsPorRetencion();
@@ -133,7 +137,7 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
 
     @PostMapping("/restaurar/{idBackup}")
     //@PreAuthorize("isAuthenticated()")
-    // @TienePermisos
+    @TienePermisos
     public ResponseEntity<?> restaurarBackup(@PathVariable Long idBackup) {
         try {
             Usuario usuario = usuarioDetailsService.getCurrentUser();
@@ -151,7 +155,7 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
 
     @PostMapping("/rehabilitar/{idBackup}")
     //@PreAuthorize("isAuthenticated()")
-    //@TienePermisos
+    @TienePermisos
     public ResponseEntity<?> rehabilitarBackup(@PathVariable Long idBackup) {
         try {
             // Obtener usuario autenticado
