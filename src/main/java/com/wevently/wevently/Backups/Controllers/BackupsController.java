@@ -14,7 +14,6 @@ import com.wevently.wevently.UsuariosySeguridad.Services.Jwt.UsuarioDetailsServi
 
 import java.util.List;
 
-
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -44,7 +43,6 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
     }
 
     @GetMapping("/mis-backups")
-    // @PreAuthorize("isAuthenticated()")
     @TienePermisos
     public ResponseEntity<List<DtoBackup>> getBackups() throws Exception {
         List<DtoBackup> backups = service.listarBackups();
@@ -53,13 +51,13 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
 
     @PutMapping("/update/{id}")
     @TienePermisos
-    public ResponseEntity<BackupConfiguracionResponseDTO> updateBackup(@PathVariable Long id, @RequestBody DtoModificacionBackup dto) {
-        BackupConfiguracionResponseDTO  backup = service.modificarConfiguracion(id, dto);
+    public ResponseEntity<BackupConfiguracionResponseDTO> updateBackup(@PathVariable Long id,
+            @RequestBody DtoModificacionBackup dto) {
+        BackupConfiguracionResponseDTO backup = service.modificarConfiguracion(id, dto);
         return ResponseEntity.ok(backup);
     }
 
     @PostMapping("/create")
-    //@PreAuthorize("isAuthenticated()")
     @TienePermisos
     public ResponseEntity<BackupConfiguracion> create(@RequestBody DtoNuevoBackup entity) throws Exception {
         Usuario usuario = usuarioDetailsService.getCurrentUser();
@@ -67,7 +65,6 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
         return ResponseEntity.ok(createdBackup);
     }
 
-    // @PreAuthorize("isAuthenticated()")
     @TienePermisos
     @PostMapping("/realizar-backups")
     public ResponseEntity<String> realizarBackupsManualmente() {
@@ -86,8 +83,7 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
             BackupConfiguracionDTO dto = new BackupConfiguracionDTO(
                     config.getId(),
                     config.getNombre(),
-                    config.getDiasRetencion()
-            );
+                    config.getDiasRetencion());
 
             return ResponseEntity.ok(dto);
         } catch (Exception e) {
@@ -97,10 +93,7 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
         }
     }
 
-
-
     @PostMapping("/limpiar-retencion")
-    //@PreAuthorize("isAuthenticated()")
     @TienePermisos
     public ResponseEntity<?> limpiarBackupsPorRetencion() {
         try {
@@ -112,31 +105,33 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
         }
     }
 
-    /*@GetMapping("/download/{idBackup}")
-    //@PreAuthorize("isAuthenticated()")
-    // @TienePermisos
-    public ResponseEntity<Resource> descargarBackup(@PathVariable Long idBackup) {
-        try {
-            Resource recurso = service.descargarBackup(idBackup);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + recurso.getFilename() + "\"")
-                    .body(recurso);
-
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }*/
+    /*
+     * @GetMapping("/download/{idBackup}")
+     * //@PreAuthorize("isAuthenticated()")
+     * // @TienePermisos
+     * public ResponseEntity<Resource> descargarBackup(@PathVariable Long idBackup)
+     * {
+     * try {
+     * Resource recurso = service.descargarBackup(idBackup);
+     * 
+     * return ResponseEntity.ok()
+     * .contentType(MediaType.APPLICATION_OCTET_STREAM)
+     * .header(HttpHeaders.CONTENT_DISPOSITION,
+     * "attachment; filename=\"" + recurso.getFilename() + "\"")
+     * .body(recurso);
+     * 
+     * } catch (EntityNotFoundException e) {
+     * return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+     * } catch (ResponseStatusException e) {
+     * return ResponseEntity.status(e.getStatusCode()).body(null);
+     * } catch (Exception e) {
+     * e.printStackTrace();
+     * return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+     * }
+     * }
+     */
 
     @PostMapping("/restaurar/{idBackup}")
-    //@PreAuthorize("isAuthenticated()")
     @TienePermisos
     public ResponseEntity<?> restaurarBackup(@PathVariable Long idBackup) {
         try {
@@ -147,14 +142,13 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
-            } catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al restaurar backup");
         }
     }
 
     @PostMapping("/rehabilitar/{idBackup}")
-    //@PreAuthorize("isAuthenticated()")
     @TienePermisos
     public ResponseEntity<?> rehabilitarBackup(@PathVariable Long idBackup) {
         try {
@@ -165,14 +159,11 @@ public class BackupsController extends BaseController<BackupConfiguracion, Long,
             service.habilitarBackupConfiguracion(idBackup, usuario.getEmail());
 
             return ResponseEntity.ok("Backup rehabilitado correctamente");
-        }
-        catch (EntityNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al rehabilitar el backup");
